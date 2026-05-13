@@ -1,7 +1,10 @@
 export const viteConfig = `import path from "path";
+import { fileURLToPath } from "url";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -31,12 +34,9 @@ type ThemeProviderState = {
   setTheme: (theme: Theme) => void
 }
 
-const initialState: ThemeProviderState = {
-  theme: "system",
-  setTheme: () => null,
-}
-
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
+const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
+  undefined
+)
 
 export function ThemeProvider({
   children,
@@ -84,7 +84,7 @@ export function ThemeProvider({
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext)
 
-  if (context === undefined)
+  if (!context)
     throw new Error("useTheme must be used within a ThemeProvider")
 
   return context
@@ -95,7 +95,7 @@ export const mainTsxCode = `import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/providers/theme-provider"
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -109,7 +109,7 @@ createRoot(document.getElementById('root')!).render(
 export const modeToggleCode = `import { Moon, Sun } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { useTheme } from "@/components/theme-provider"
+import { useTheme } from "@/providers/theme-provider"
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme()
@@ -128,7 +128,7 @@ export function ModeToggle() {
 }
 `;
 
-export const appTsxCode = `import { ModeToggle } from "@/components/mode-toggle"
+export const appTsxCode = `import { ModeToggle } from "@/features/theme/mode-toggle"
 import { Button } from "@/components/ui/button"
 
 function App() {
@@ -144,4 +144,24 @@ function App() {
 }
 
 export default App
+`;
+
+export const tsconfigCode = `{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
 `;

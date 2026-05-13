@@ -13,15 +13,23 @@ export function  App({ projectName }: Props) {
 
   const options = [
     { label: "Zustand (State Management)", value: "zustand" },
-    { label: "React Router DOM", value: "react-router-dom" },
-    { label: "Axios (Data Fetching)", value: "axios" },
+    { label: "React Router DOM (Routing)", value: "react-router-dom" },
+    { label: "TanStack Query (Data Fetching/Caching)", value: "@tanstack/react-query" },
+    { label: "Axios (HTTP Client)", value: "axios" },
+    { label: "Framer Motion (Animations)", value: "framer-motion" },
+    { label: "React Hook Form (Forms)", value: "react-hook-form" },
+    { label: "Zod (Schema Validation)", value: "zod" },
   ];
 
   const handleSubmit = async (selectedValues: string[]) => {
     setIsDone(true);
     exit();
 
-    await create(projectName, selectedValues);
+    try {
+      await create(projectName, selectedValues);
+    } catch {
+      process.exitCode = 1;
+    }
   };
 
   if (isDone) {
