@@ -10,7 +10,7 @@ import {
   modeToggleCode,
   themeProviderCode,
   viteConfig,
-} from "./templates";
+} from "./templates.js";
 
 export async function create(projectName: string, packages: string[]) {
   const spinner = ora("Scaffolding Vite React app...").start();
