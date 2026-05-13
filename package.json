@@ -1,6 +1,15 @@
 {
   "name": "shadcn-scaffold",
   "version": "1.0.0",
+  "description": "Scaffold Vite + React + shadcn/ui apps from the terminal",
+  "keywords": [
+    "cli",
+    "scaffold",
+    "shadcn",
+    "vite",
+    "react"
+  ],
+  "license": "MIT",
   "bin": {
     "scaffold": "./dist/index.js"
   },
