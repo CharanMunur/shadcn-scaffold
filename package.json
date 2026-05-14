@@ -1,6 +1,6 @@
 {
   "name": "shadcn-scaffold",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Scaffold Vite + React + shadcn/ui apps from the terminal",
   "keywords": [
     "cli",
