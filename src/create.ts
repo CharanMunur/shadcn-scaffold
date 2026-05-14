@@ -49,21 +49,27 @@ export async function create(projectName: string, packages: string[]) {
 
     const tsconfigAppPath = path.join(projectName, "tsconfig.app.json");
     let tsconfigAppContent = fs.readFileSync(tsconfigAppPath, "utf-8");
+    // Strip out ignoreDeprecations from Vite's default template to avoid IDE errors
+    tsconfigAppContent = tsconfigAppContent.replace(/"ignoreDeprecations":\s*"[^"]*",?/g, "");
     tsconfigAppContent = tsconfigAppContent.replace(
       '"compilerOptions": {',
-      `"compilerOptions": {\n    "ignoreDeprecations": "6.0",\n    "baseUrl": ".",\n    "paths": {\n      "@/*": [\n        "./src/*"\n      ]\n    },`,
+      `"compilerOptions": {\n    "baseUrl": ".",\n    "paths": {\n      "@/*": [\n        "./src/*"\n      ]\n    },`,
     );
     fs.writeFileSync(tsconfigAppPath, tsconfigAppContent);
 
     const tsconfigPath = path.join(projectName, "tsconfig.json");
-    const tsconfig = JSON.parse(fs.readFileSync(tsconfigPath, "utf-8"));
+    let tsconfigContent = fs.readFileSync(tsconfigPath, "utf-8");
+    tsconfigContent = tsconfigContent.replace(/"ignoreDeprecations":\s*"[^"]*",?/g, "");
+    const tsconfig = JSON.parse(tsconfigContent);
     tsconfig.compilerOptions = {
+      ...tsconfig.compilerOptions,
       baseUrl: ".",
-      ignoreDeprecations: "6.0",
       paths: {
         "@/*": ["./src/*"],
       },
     };
+    // Ensure ignoreDeprecations is definitely removed
+    delete tsconfig.compilerOptions.ignoreDeprecations;
     fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 2));
 
     spinner.start("Initializing shadcn/ui...");

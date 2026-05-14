@@ -128,17 +128,40 @@ export function ModeToggle() {
 }
 `;
 
-export const appTsxCode = `import { ModeToggle } from "@/features/theme/mode-toggle"
+export const appTsxCode = `import { useState } from "react"
+import { ModeToggle } from "@/features/theme/mode-toggle"
 import { Button } from "@/components/ui/button"
 
 function App() {
+  const [count, setCount] = useState(0)
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-24 gap-4">
+    <div className="flex min-h-screen flex-col items-center justify-center p-8 text-center font-sans">
       <div className="absolute top-4 right-4">
         <ModeToggle />
       </div>
-      <h1 className="text-4xl font-bold">Hello World</h1>
-      <Button>Click me</Button>
+
+      <a
+        href="https://www.npmjs.com/package/shadcn-scaffold"
+        target="_blank"
+        rel="noreferrer"
+        className="mb-8 rounded-full bg-muted px-4 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground"
+      >
+        Built with shadcn-scaffold
+      </a>
+
+      <h1 className="mb-8 text-4xl font-bold tracking-tight sm:text-5xl">
+        Scaffold a shadcn + Vite + React project
+      </h1>
+      
+      <div className="flex flex-col items-center gap-4">
+        <Button onClick={() => setCount((count) => count + 1)}>
+          Count is {count}
+        </Button>
+        <p className="text-muted-foreground">
+          Edit <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-foreground">src/App.tsx</code> to get started.
+        </p>
+      </div>
     </div>
   )
 }
@@ -158,7 +181,6 @@ export const tsconfigCode = `{
   ],
   "compilerOptions": {
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["./src/*"]
     }
