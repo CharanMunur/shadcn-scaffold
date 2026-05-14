@@ -11,12 +11,22 @@ import {
   themeProviderCode,
   viteConfig,
 } from "./templates.js";
+import { detectPackageManager } from "./packageDetector.js";
 
 export async function create(projectName: string, packages: string[]) {
   const spinner = ora("Scaffolding Vite React app...").start();
+  const pm = detectPackageManager();
+  const installCmd = pm === "npm" ? "install" : "add";
+  const executeCmd = pm === "bun" ? "bunx" : pm === "pnpm" ? "pnpm" : "npx";
+  const executeArgs =
+    pm === "bun"
+      ? ["--bun", "shadcn@latest"]
+      : pm === "pnpm"
+        ? ["dlx", "shadcn@latest"]
+        : ["shadcn@latest"];
 
   try {
-    await execa("bun", [
+    await execa(pm, [
       "create",
       "vite@latest",
       projectName,
@@ -26,7 +36,7 @@ export async function create(projectName: string, packages: string[]) {
     spinner.succeed("Vite React app created");
 
     spinner.start("Installing Tailwind CSS...");
-    await execa("bun", ["add", "tailwindcss", "@tailwindcss/vite"], {
+    await execa(pm, [installCmd, "tailwindcss", "@tailwindcss/vite"], {
       cwd: projectName,
     });
     spinner.succeed("Tailwind CSS installed");
@@ -57,9 +67,8 @@ export async function create(projectName: string, packages: string[]) {
     fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 2));
 
     spinner.start("Initializing shadcn/ui...");
-    await execa("bunx", [
-      "--bun",
-      "shadcn@latest",
+    await execa(executeCmd, [
+      ...executeArgs,
       "init",
       "-t",
       "vite",
@@ -71,9 +80,8 @@ export async function create(projectName: string, packages: string[]) {
     spinner.succeed("shadcn/ui initialized");
 
     spinner.start("Adding shadcn button component...");
-    await execa("bunx", [
-      "--bun",
-      "shadcn@latest",
+    await execa(executeCmd, [
+      ...executeArgs,
       "add",
       "button",
       "-y",
@@ -104,7 +112,7 @@ export async function create(projectName: string, packages: string[]) {
 
     if (packages.length > 0) {
       spinner.start(`Installing extra packages: ${packages.join(", ")}...`);
-      await execa("bun", ["add", ...packages], {
+      await execa(pm, [installCmd, ...packages], {
         cwd: projectName,
       });
       spinner.succeed("Extra packages installed");
@@ -115,10 +123,21 @@ export async function create(projectName: string, packages: string[]) {
     );
     console.log(`\nNext steps:`);
     console.log(`  ${chalk.cyan(`cd ${projectName}`)}`);
-    console.log(`  ${chalk.cyan("bun run dev")}\n`);
-  } catch (error) {
+    console.log(`  ${chalk.cyan(`${pm} run dev`)}\n`);
+  } catch (error: any) {
     spinner.fail("An error occurred during setup");
-    console.error(error);
-    throw error;
+    
+    if (error.stderr) {
+      console.error(chalk.red("\nDetailed Error (stderr):"));
+      console.error(chalk.dim(error.stderr));
+    } else if (error.message) {
+      console.error(chalk.red("\nError Message:"));
+      console.error(chalk.dim(error.message));
+    } else {
+      console.error(chalk.red("\nUnknown Error:"));
+      console.error(error);
+    }
+    
+    process.exit(1);
   }
 }
